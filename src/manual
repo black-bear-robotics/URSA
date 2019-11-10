@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# Manual drive subsystem.
+# This will handle remote drive by gamepad.
+
+import rospy
+from std_msgs.msg import String
+
+if __name__ == '__main__':
+    try:
+        # register node and initialize main function
+    except rospy.ROSInterruptException:
+        pass
+    

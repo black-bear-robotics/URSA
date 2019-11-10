@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+# Core robot logic
+# This is where the decision-making happens, using the FSM.
+# Other nodes, like pathfinder and manual, may
+# be added for modularity.
+
+import rospy
+from std_msgs.msg import String
+
+if __name__ == '__main__':
+    try:
+        # register node and initialize main function
+    except rospy.ROSInterruptException:
+        pass
+    

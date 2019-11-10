@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# Pathfinding node.
+# This will listen for new data from ORB_SLAM2 et al and
+# rebroadcast messages containing the shortest path.
+
+import rospy
+from std_msgs.msg import String
+
+def talker():
+	rate = rospy.Rate(1)
+	while not rospy.is_shutdown():
+		rospy.loginfo("Hi")
+		rate.sleep()
+
+if __name__ == '__main__':
+	try:
+		rospy.init_node('pathfinder', anonymous = True)
+		talker()
+	except rospy.ROSInterruptException:
+		pass
+	
