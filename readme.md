@@ -9,4 +9,15 @@
 roscore
 rosrun ursa pathfinder
 ```
-Eventually we'll want to setup a launch file so roslaunch and bring them all up at once.
+
+## Launch Files
+### Launch all URSA nodes
+The ursa.launch file brings up all custom Python nodes.
+```
+roslaunch ursa/launch/ursa.launch
+```
+### Launch robot
+This top-level file brings up everything in ursa.launch as well as every external node the robot depends on. This is our one-stop start script.
+```
+roslaunch ursa/launch/robot.launch
+```

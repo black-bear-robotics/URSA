@@ -1,0 +1,5 @@
+<!-- Top level launch file to bring up everything we need for the robot -->
+<!-- wiki.ros.org/roslaunch/XML/node -->
+<launch>
+	<include file="ursa.launch" />
+</launch>
