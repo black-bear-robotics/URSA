@@ -1,0 +1,5 @@
+<!-- wiki.ros.org/roslaunch/XML/node -->
+<launch>
+	<!-- Nodes to launch in URSA package -->
+	<node name="pathfinder" type="pathfinder" pkg="ursa" respawn="true" />
+</launch>

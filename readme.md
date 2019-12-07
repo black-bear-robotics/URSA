@@ -7,6 +7,6 @@
 ## Running individual nodes
 ```
 roscore
-rosrun URSA pathfinder
+rosrun ursa pathfinder
 ```
 Eventually we'll want to setup a launch file so roslaunch and bring them all up at once.
