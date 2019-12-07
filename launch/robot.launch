@@ -1,5 +1,7 @@
 <!-- Top level launch file to bring up everything we need for the robot -->
 <!-- wiki.ros.org/roslaunch/XML/node -->
 <launch>
+	<include file="$(find name_of_orb_slam_package)/launch/name_of_file.launch" />
+	<include file="$(find octomap_server)/launch/octomap_mynteye.launch" />
 	<include file="ursa.launch" />
 </launch>
