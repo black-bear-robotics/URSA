@@ -5,6 +5,71 @@
 
 import rospy
 from std_msgs.msg import String
+from nav_msgs.msg import OccupancyGrid, Path
+from geometry_msgs.msg import PoseStamped
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.a_star import AStarFinder
+
+
+class Pathfinder:
+
+	def __init__(self):
+		self.navmatrix = [] #2D map
+		self.path = [] #Path
+		self.loc = () #x,y tuple
+		self.target = () #x,y tuple
+
+		self.ros_path = Path()
+		self.pub = rospy.Publisher('path', Path, latch=True, queue_size=10)
+		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
+		rospy.spin()
+
+
+	def find_path(self, loc, target):
+		# Takes the 2D map and plots a path from the current location to the target
+		# Since self.path is a list, we can pop nodes off of it as we travel to them
+		grid = Grid(matrix=self.navmatrix)
+		start = grid.node(loc[0], loc[1])
+		end = grid.node(target[0], target[1])
+		finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
+		path, runs = finder.find_path(start, end, grid)
+		path.reverse() #Put nodes into driving order
+		if len(path) > 0: path.pop() #Remove the starting node we're in
+		self.path = path
+		rospy.loginfo(grid.grid_str(path=self.path, start=start, end=end))
+		publish_path(path)
+
+
+	def build_navmatrix(self, data):
+		# Turn OccupancyGrid into list of python lists
+		return
+
+
+	def publish_path(self, path):
+		# Format the list into an ROS Path message and publish
+		self.ros_path = Path()
+		
+		for node in path:
+			pose = PoseStamped()
+			pose.pose.position.x = node.x
+			pose.pose.position.y = node.y
+			pose.pose.position.z = 0
+			pose.pose.orientation.x = float(0)
+			pose.pose.orientation.y = float(0)
+			pose.pose.orientation.z = float(0)
+			pose.pose.orientation.w = float(0)
+			self.ros_path.poses_append(pose)
+			
+		self.pub.publish(self.ros_path)
+
+
+	def listen_grid(self, data):
+		# Listen to octomap_server for an OccupancyGrid
+		rospy.loginfo("Pathfinder received: %s", data.data)
+		# Build and save map in the format the pathfinder needs
+		# Run find_path()
+
 
 def talker():
 	rate = rospy.Rate(1)
@@ -12,10 +77,12 @@ def talker():
 		rospy.loginfo("Hi")
 		rate.sleep()
 
+
 if __name__ == '__main__':
 	try:
 		rospy.init_node('pathfinder')
-		talker()
+		Pathfinder()
+		#talker()
 	except rospy.ROSInterruptException:
 		pass
 	

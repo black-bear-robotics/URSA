@@ -14,8 +14,10 @@ class URSARobot:
 		
 		rospy.set_param('collected', False) #whether we have materials to deposit or not
 
+		rate = rospy.Rate(1)
 		while not rospy.is_shutdown():
-			continue #run update method on current state
+			#run update method on current state
+			rate.sleep()
 
 		rospy.loginfo("Shutting down.")
 
