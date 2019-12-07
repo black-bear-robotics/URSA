@@ -14,7 +14,7 @@ def talker():
 
 if __name__ == '__main__':
 	try:
-		rospy.init_node('pathfinder', anonymous = True)
+		rospy.init_node('pathfinder')
 		talker()
 	except rospy.ROSInterruptException:
 		pass

@@ -7,9 +7,24 @@
 import rospy
 from std_msgs.msg import String
 
+class URSARobot:
+
+	def __init__(self):
+		rospy.loginfo("Robot online.")
+		
+		rospy.set_param('collected', False) #whether we have materials to deposit or not
+
+		while not rospy.is_shutdown():
+			continue #run update method on current state
+
+		rospy.loginfo("Shutting down.")
+
+
+
 if __name__ == '__main__':
     try:
-        # register node and initialize main function
+		rospy.init_node('core')
+		URSARobot()
     except rospy.ROSInterruptException:
         pass
     
