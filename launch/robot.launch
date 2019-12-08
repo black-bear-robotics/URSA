@@ -1,5 +1,6 @@
 <!-- Top level launch file to bring up everything we need for the robot -->
 <!-- wiki.ros.org/roslaunch/XML/node -->
+<!-- Possibly copy the custom ORB_SLAM2 and octomap_server launch files to this directory and alter to run out of here, to ensure our setting changes are preserved in git. -->
 <launch>
 	<include file="$(find name_of_orb_slam_package)/launch/name_of_file.launch" />
 	<include file="$(find octomap_server)/launch/octomap_mynteye.launch" />
