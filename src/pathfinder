@@ -5,7 +5,7 @@
 
 import rospy
 from std_msgs.msg import String
-from nav_msgs.msg import OccupancyGrid, Path
+from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
 from geometry_msgs.msg import PoseStamped
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
@@ -15,6 +15,7 @@ from pathfinding.finder.a_star import AStarFinder
 class Pathfinder:
 
 	def __init__(self):
+		self.occupancygrid = None #Last occupancy grid received from Octomap
 		self.navmatrix = [] #2D map
 		self.path = [] #Path
 		self.loc = () #x,y tuple
@@ -38,11 +39,14 @@ class Pathfinder:
 		if len(path) > 0: path.pop() #Remove the starting node we're in
 		self.path = path
 		rospy.loginfo(grid.grid_str(path=self.path, start=start, end=end))
-		publish_path(path)
+		#publish_path(path)
 
 
-	def build_navmatrix(self, data):
+	def unpack_navmatrix(self, data):
 		# Turn OccupancyGrid into list of python lists
+		meta = data.info
+		row = []
+		# iterate data.data and use meta.width and meta.height to form 2D list	
 		return
 
 
@@ -66,8 +70,9 @@ class Pathfinder:
 
 	def listen_grid(self, data):
 		# Listen to octomap_server for an OccupancyGrid
-		rospy.loginfo("Pathfinder received: %s", data.data)
-		# Build and save map in the format the pathfinder needs
+		rospy.loginfo("Pathfinder received data from Octomap server.")
+		self.occupancygrid = data
+		self.unpack_navmatrix(data)
 		# Run find_path()
 
 
