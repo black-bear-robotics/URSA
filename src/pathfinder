@@ -45,10 +45,9 @@ class Pathfinder:
 	def unpack_navmatrix(self, data):
 		# Turn OccupancyGrid into list of python lists
 		meta = data.info
-		row = []
-		# iterate data.data and use meta.width and meta.height to form 2D list	
-		return
-
+		self.navmatrix = [data.data[i:i+meta.width] for i in range(0, len(data.data), meta.width)]
+		rospy.loginfo("MAP: w: {}, h: {}, res: {}".format(meta.width, meta.height, meta.resolution))
+		
 
 	def publish_path(self, path):
 		# Format the list into an ROS Path message and publish
