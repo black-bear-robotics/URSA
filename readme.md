@@ -22,10 +22,11 @@ rosrun ursa pathfinder
 ### Launch all URSA nodes
 The ursa.launch file brings up all custom Python nodes.
 ```
-roslaunch ursa/launch/ursa.launch
+roslaunch ursa ursa.launch
 ```
+Note: You can also run launch files directly, which is useful for testing purposes. e.g. `roslaunch ursa/launch/ursa.launch`
 ### Launch robot
 This top-level file brings up everything in ursa.launch as well as every external node the robot depends on. This is our one-stop start script.
 ```
-roslaunch ursa/launch/robot.launch
+roslaunch ursa robot.launch
 ```
