@@ -6,10 +6,11 @@
 import rospy
 from std_msgs.msg import String
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PointStamped
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+from util import gridutil
 
 
 class Pathfinder:
@@ -18,15 +19,15 @@ class Pathfinder:
 		self.occupancy_grid = None #Last occupancy grid received from Octomap
 		self.navmatrix = [] #2D map
 		self.cam_pose = None #PoseStamped of camera position
-		self.cam_grid_loc = () #x,y tuple of camera location on grid
 		self.path = [] #Path
 		self.loc = () #x,y tuple
 		self.target = () #x,y tuple
-
 		self.ros_path = Path()
+
 		self.pub = rospy.Publisher('path', Path, latch=True, queue_size=10)
 		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
 		rospy.Subscriber('orb_slam2_mynteye_s_stereo/pose', PoseStamped, self.listen_position)
+		rospy.Subscriber('clicked_point', PointStamped, self.listen_clicked)
 		rospy.spin()
 
 
@@ -48,7 +49,7 @@ class Pathfinder:
 	def unpack_navmatrix(self, data):
 		# Turn OccupancyGrid into list of python lists
 		meta = data.info
-		self.navmatrix = [data.data[i:i+meta.width] for i in range(0, len(data.data), meta.width)]
+		self.navmatrix = [map(gridutil.pfval, data.data[i:i+meta.width]) for i in range(0, len(data.data), meta.width)]
 		rospy.loginfo("MAP: w: {}, h: {}, res: {}".format(meta.width, meta.height, meta.resolution))
 		
 
@@ -72,10 +73,8 @@ class Pathfinder:
 
 	def listen_grid(self, data):
 		# Listen to octomap_server for an OccupancyGrid
-		rospy.loginfo("Pathfinder received data from Octomap server.")
 		self.occupancy_grid = data
 		self.unpack_navmatrix(data)
-		# Run find_path()
 
 
 	def listen_position(self, data):
@@ -84,13 +83,18 @@ class Pathfinder:
 		if self.occupancy_grid is None:
 			return
 		self.cam_pose = data
-		origin = self.occupancy_grid.info.origin
-		res = self.occupancy_grid.info.resolution
-		x = (data.pose.position.x - origin.position.x) // res
-		y = (data.pose.position.y - origin.position.y) // res
-		self.cam_grid_loc = (x,y)
-		rospy.loginfo("POS:: x: {}, y: {}".format(x,y))
+		point = data.pose.position
+		self.loc = gridutil.point_to_grid(point, self.occupancy_grid)
+		rospy.loginfo("POS:: x: {}, y: {}".format(self.loc[0], self.loc[1]))
 
+
+	def listen_clicked(self, data):
+		# If a point is clicked in rviz, use it as a pathfinding target
+		clicked = gridutil.point_to_grid(data.point, self.occupancy_grid)
+		self.target = clicked
+		rospy.loginfo("CLICKED: x: {}, y: {}".format(clicked[0], clicked[1]))
+		self.find_path(self.loc, clicked)
+		
 
 
 if __name__ == '__main__':
