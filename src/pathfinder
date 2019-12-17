@@ -15,8 +15,10 @@ from pathfinding.finder.a_star import AStarFinder
 class Pathfinder:
 
 	def __init__(self):
-		self.occupancygrid = None #Last occupancy grid received from Octomap
+		self.occupancy_grid = None #Last occupancy grid received from Octomap
 		self.navmatrix = [] #2D map
+		self.cam_pose = None #PoseStamped of camera position
+		self.cam_grid_loc = () #x,y tuple of camera location on grid
 		self.path = [] #Path
 		self.loc = () #x,y tuple
 		self.target = () #x,y tuple
@@ -24,6 +26,7 @@ class Pathfinder:
 		self.ros_path = Path()
 		self.pub = rospy.Publisher('path', Path, latch=True, queue_size=10)
 		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
+		rospy.Subscriber('orb_slam2_mynteye_s_stereo/pose', PoseStamped, self.listen_position)
 		rospy.spin()
 
 
@@ -70,9 +73,23 @@ class Pathfinder:
 	def listen_grid(self, data):
 		# Listen to octomap_server for an OccupancyGrid
 		rospy.loginfo("Pathfinder received data from Octomap server.")
-		self.occupancygrid = data
+		self.occupancy_grid = data
 		self.unpack_navmatrix(data)
 		# Run find_path()
+
+
+	def listen_position(self, data):
+		# Listen to orb_slam2 for the current camera position
+		# Don't process position until grid has been received
+		if self.occupancy_grid is None:
+			return
+		self.cam_pose = data
+		origin = self.occupancy_grid.info.origin
+		res = self.occupancy_grid.info.resolution
+		x = (data.pose.position.x - origin.position.x) // res
+		y = (data.pose.position.y - origin.position.y) // res
+		self.cam_grid_loc = (x,y)
+		rospy.loginfo("POS:: x: {}, y: {}".format(x,y))
 
 
 

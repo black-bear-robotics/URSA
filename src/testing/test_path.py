@@ -46,7 +46,7 @@ def send_robot_pos(pub):
 def main():
 	rate = rospy.Rate(0.1)
 	pub_grid = rospy.Publisher('projected_map', OccupancyGrid, latch=True, queue_size=10)	
-	pub_pos = rospy.Publisher('orb_slam2_stereo/pose', PoseStamped, latch=True, queue_size=10)	
+	pub_pos = rospy.Publisher('orb_slam2_mynteye_s_stereo/pose', PoseStamped, latch=True, queue_size=10)	
 	while not rospy.is_shutdown():
 		send_grid(pub_grid)
 		send_robot_pos(pub_pos)
