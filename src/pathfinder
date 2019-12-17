@@ -37,13 +37,13 @@ class Pathfinder:
 		grid = Grid(matrix=self.navmatrix)
 		start = grid.node(loc[0], loc[1])
 		end = grid.node(target[0], target[1])
-		finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
+		finder = AStarFinder(diagonal_movement=DiagonalMovement.only_when_no_obstacle)
 		path, runs = finder.find_path(start, end, grid)
 		path.reverse() #Put nodes into driving order
 		if len(path) > 0: path.pop() #Remove the starting node we're in
 		self.path = path
 		rospy.loginfo(grid.grid_str(path=self.path, start=start, end=end))
-		#publish_path(path)
+		self.publish_path(path)
 
 
 	def unpack_navmatrix(self, data):
@@ -55,18 +55,20 @@ class Pathfinder:
 
 	def publish_path(self, path):
 		# Format the list into an ROS Path message and publish
+		res = self.occupancy_grid.info.resolution
 		self.ros_path = Path()
+		self.ros_path.header.frame_id = "map"
 		
 		for node in path:
 			pose = PoseStamped()
-			pose.pose.position.x = node.x
-			pose.pose.position.y = node.y
+			pose.pose.position.x = (node[0] * res) + (res/2)
+			pose.pose.position.y = (node[1] * res) + (res/2)
 			pose.pose.position.z = 0
 			pose.pose.orientation.x = float(0)
 			pose.pose.orientation.y = float(0)
 			pose.pose.orientation.z = float(0)
 			pose.pose.orientation.w = float(0)
-			self.ros_path.poses_append(pose)
+			self.ros_path.poses.append(pose)
 			
 		self.pub.publish(self.ros_path)
 
