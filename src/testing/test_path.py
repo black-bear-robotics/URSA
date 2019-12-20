@@ -3,7 +3,8 @@
 
 import rospy
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped, Point
+from ursa.srv import PathfinderTarget
 
 
 def send_grid(pub):
@@ -41,6 +42,15 @@ def send_robot_pos(pub):
 	pose.pose.orientation.z = 0
 	pose.pose.orientation.w = 0
 	pub.publish(pose)
+
+
+def test_change_target():
+	rospy.wait_for_service('pathfinder_target')
+	srv = rospy.ServiceProxy('pathfinder_target', PathfinderTarget)
+	try:
+		srv(Point(0,0,0))
+	except:
+		return
 
 
 def main():

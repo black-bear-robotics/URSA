@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped, PointStamped
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+from ursa.srv import PathfinderTarget, PathfinderTargetResponse
 from util import gridutil
 
 
@@ -25,9 +26,12 @@ class Pathfinder:
 		self.ros_path = Path()
 
 		self.pub = rospy.Publisher('path', Path, latch=True, queue_size=10)
+		self.srv_target = rospy.Service('pathfinder_target', PathfinderTarget, self.set_target_service)
+
 		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
 		rospy.Subscriber('orb_slam2_mynteye_s_stereo/pose', PoseStamped, self.listen_position)
 		rospy.Subscriber('clicked_point', PointStamped, self.listen_clicked)
+
 		rospy.spin()
 
 
@@ -96,6 +100,16 @@ class Pathfinder:
 		self.target = clicked
 		rospy.loginfo("CLICKED: x: {}, y: {}".format(clicked[0], clicked[1]))
 		self.find_path(self.loc, clicked)
+
+
+	def set_target_service(self, data):
+		# Another node can set the pathfinding target by sending a
+		# Point(x,y,z) to the /pathfinder_target service.
+		if self.occupancy_grid is None:
+			return
+		self.target = gridutil.point_to_grid(data.point, self.occupancy_grid)
+		self.find_path(self.loc, self.target)
+		return PathfinderTargetResponse(self.ros_path)
 		
 
 
