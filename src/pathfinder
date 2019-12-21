@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped, PointStamped
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+from std_srvs.srv import Trigger, TriggerResponse
 from ursa.srv import PathfinderTarget, PathfinderTargetResponse
 from util import gridutil
 
@@ -27,6 +28,7 @@ class Pathfinder:
 
 		self.pub = rospy.Publisher('path', Path, latch=True, queue_size=10)
 		self.srv_target = rospy.Service('pathfinder_target', PathfinderTarget, self.set_target_service)
+		self.srv_path = rospy.Service('find_path', Trigger, self.find_path_service)
 
 		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
 		rospy.Subscriber('orb_slam2_mynteye_s_stereo/pose', PoseStamped, self.listen_position)
@@ -91,7 +93,7 @@ class Pathfinder:
 		self.cam_pose = data
 		point = data.pose.position
 		self.loc = gridutil.point_to_grid(point, self.occupancy_grid)
-		rospy.loginfo("POS:: x: {}, y: {}".format(self.loc[0], self.loc[1]))
+		rospy.loginfo("POS: x: {}, y: {}".format(self.loc[0], self.loc[1]))
 
 
 	def listen_clicked(self, data):
@@ -110,6 +112,17 @@ class Pathfinder:
 		self.target = gridutil.point_to_grid(data.point, self.occupancy_grid)
 		self.find_path(self.loc, self.target)
 		return PathfinderTargetResponse(self.ros_path)
+
+
+	def find_path_service(self, data):
+		# Triggering the /find_path service will cause the node
+		# to find a path to the established target, and publish
+		# it to the /path topic.
+		if self.occupancy_grid is None or not self.target:
+			return TriggerResponse(success=False)
+		else:
+			self.find_path(self.loc, self.target)
+			return TriggerResponse(success=True)
 		
 
 
