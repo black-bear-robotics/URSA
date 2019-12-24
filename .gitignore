@@ -5,3 +5,4 @@ devel/
 logs/
 .DS_Store
 *.swp
+*.pyc
