@@ -6,27 +6,147 @@
 
 import rospy
 from std_msgs.msg import String
+from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
+from util import fsm
 
 class URSARobot:
 
 	def __init__(self):
+		# Set up the finite state machine
 		rospy.loginfo("Robot online.")
-		
-		rospy.set_param('collected', False) #whether we have materials to deposit or not
+		self.state = fsm.StateMachine()
+		self.state.push(MappingField(self))
 
+		#Publicly exposed robot properties
+		rospy.set_param('collector_full', False) #do we have materials to dump?
+
+		# Subsctibe to topics and collect data
+		self.path = None
+		rospy.Subscriber('path', Path, self.listen_path)
+
+		# State tick. Run update method of current state
 		rate = rospy.Rate(1)
 		while not rospy.is_shutdown():
-			#run update method on current state
+			self.state.update()
 			rate.sleep()
 
-		rospy.loginfo("Shutting down.")
+
+	def listen_path(self, data):
+		self.path = data.poses
+
+
+
+#########################
+# Robot Behavior States #
+#########################
+
+class MappingField:
+	def __init__(self, robot):
+		self.robot = robot
+		self.done = False
+		rospy.loginfo("Mapping field.")
+
+	def condition(self):
+		return not self.done
+
+	def next(self):
+		self.robot.state.push(MovingTo(self.robot))
+
+	def do(self):
+		#sweep the camera while we build the initial map
+		#then set self.done to True to start driving
+		#If self.robot.path is not None, we're probably ready.
+		#Alternately, we could wait for a manual start command.
+		#This is also where we tell the pathfinder module whether
+		#to plot a course to the base or a dig site.
+		if self.robot.path: #for testing
+			self.done = True
+
+
+
+class MovingTo:
+	def __init__(self, robot):
+		self.robot = robot
+
+	def condition(self):
+		return len(self.robot.path) > 0
+
+	def next(self):
+		self.robot.state.push(Arriving(self.robot))
+
+	def do(self):
+		# drive robot, sending command to drive control node
+		cell = self.robot.path.pop()
+		point = cell.pose.point
+		rospy.loginfo("Driving to coordinate ({},{})".format(point.x, point.y))
+		# send message to drive service, validate movement
+
+
+
+class Arriving:
+	def __init__(self, robot):
+		self.robot = robot
+
+	def condition(self):
+		return True
+
+	def next(self):
+		return
+
+	def do(self):
+		rospy.loginfo("Arrived at target cell.")
+		self.robot.state.pop()
+		if rospy.get_param("collector_full"):
+			self.robot.state.push(Depositing(self.robot))
+		else:
+			self.robot.state.push(Digging(self.robot))
+
+
+
+class Digging:
+	def __init__(self, robot):
+		self.robot = robot
+		self.done = False
+		rospy.loginfo("Digging...")
+
+	def condition(self):
+		return not self.done
+
+	def next(self):
+		rospy.loginfo("Digging complete.")
+		rospy.set_param('collector_full', True)
+		self.robot.state.push(MappingField(self.robot))
+
+	def do(self):
+		# Run motor routine while bin < full
+		self.done = True
+
+
+
+class Depositing:
+	def __init__(self, robot):
+		self.robot = robot
+		self.done = False
+		rospy.loginfo("Dumping...")
+
+	def condition(self):
+		return not self.done
+
+	def next(self):
+		rospy.loginfo("Dumping complete.")
+		rospy.set_param('collector_full', False)
+		self.robot.state.push(MappingField(self.robot))
+
+	def do(self):
+		# Run motor routine until collection bin is empty
+		self.done = True
 
 
 
 if __name__ == '__main__':
-    try:
+	try:
 		rospy.init_node('core')
 		URSARobot()
-    except rospy.ROSInterruptException:
-        pass
-    
+	except rospy.ROSInterruptException:
+		pass
+	
