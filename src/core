@@ -19,13 +19,14 @@ class URSARobot:
 
 		#Publicly exposed robot properties
 		rospy.set_param('collector_full', False) #do we have materials to dump?
+		rospy.set_param('hold', True) #don't drive until human says so
 
 		# Subsctibe to topics and collect data
 		self.path = None
 		rospy.Subscriber('path', Path, self.listen_path)
 
 		# State tick. Run update method of current state
-		rate = rospy.Rate(1)
+		rate = rospy.Rate(10)
 		while not rospy.is_shutdown():
 			self.state.update()
 			rate.sleep()
