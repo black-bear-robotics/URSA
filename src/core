@@ -77,7 +77,7 @@ class MovingTo:
 	def do(self):
 		# drive robot, sending command to drive control node
 		cell = self.robot.path.pop()
-		point = cell.pose.point
+		point = cell.pose.position
 		rospy.loginfo("Driving to coordinate ({},{})".format(point.x, point.y))
 		# send message to drive service, validate movement
 
