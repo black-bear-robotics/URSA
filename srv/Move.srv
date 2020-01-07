@@ -1,0 +1,3 @@
+float32 distance #in meters, negative to reverse
+----
+float32 traveled #meters traveled

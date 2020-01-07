@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+# Drive node.
+# Receives commands from other nodes and operates motors, as well
+# as calculating movement from cell to cell on the nav grid.
+
+import rospy
+from std_srvs.srv import Trigger
+from ursa.srv import DriveTo, DriveToRespose, Move, MoveResponse, Turn, MotorSpeed
+
+class Drive:
+
+	def __init__(self):
+		rospy.Service('drive_to', DriveTo, self.drive_to)
+		rospy.Service('move', Move, self.move)
+		rospy.Service('turn', Turn, self.turn)
+		rospy.Service('motor_speed', MotorSpeed, self.motor_speed)		
+		rospy.Service('start_digging', Trigger, self.start_digging)
+		rospy.Service('stop_digging', Trigger, self.stop_digging)
+		rospy.Service('dump_collector', Trigger, self.dump_collector)
+
+		rospy.spin()
+
+
+	def drive_to(self, data):
+		# Takes a Pose object (data.target) and drives the robot to it
+		# Returns a Pose estimating the new position by odometry.
+		return
+
+
+	def move(self, data):
+		# Drive forward or background n meters (data.distance).
+		# Negative for reverse.
+		# Returns meters traveled, by motor odometry.
+		return
+
+
+	def turn(self, data):
+		# Turn n degrees (data.degrees). Negative to reverse direction.
+		return
+
+
+	def motor_speed(self, data):
+		# Directly set the speed of attached motors.
+		# data.names: array of motor names (string)
+		# data.speeds: array of motor speeds (float)
+		return
+
+
+	def start_digging(self):
+		return
+
+
+	def stop_digging(self):
+		return
+
+
+	def dump_collector(self):
+		return
+
+
+
+if __name__ == '__main__':
+	try:
+		rospy.init_node('drive')
+		Drive()
+	except rospy.ROSInterruptException:
+		pass

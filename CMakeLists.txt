@@ -20,6 +20,10 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
 	FILES
     PathfinderTarget.srv
+    DriveTo.srv
+    Move.srv
+    Turn.srv
+    MotorSpeed.srv
 )
 
 
