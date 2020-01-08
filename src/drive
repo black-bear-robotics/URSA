@@ -5,7 +5,7 @@
 
 import rospy
 from std_srvs.srv import Trigger
-from ursa.srv import DriveTo, DriveToRespose, Move, MoveResponse, Turn, MotorSpeed
+from ursa.srv import DriveTo, DriveToResponse, Move, MoveResponse, Turn, MotorSpeed
 
 class Drive:
 
@@ -24,7 +24,7 @@ class Drive:
 	def drive_to(self, data):
 		# Takes a Pose object (data.target) and drives the robot to it
 		# Returns a Pose estimating the new position by odometry.
-		return
+		return DriveToResponse(data.target)
 
 
 	def move(self, data):

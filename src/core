@@ -8,6 +8,7 @@ import rospy
 from std_msgs.msg import String
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
 from util import fsm
+from ursa.srv import DriveTo
 
 class URSARobot:
 
@@ -68,6 +69,8 @@ class MappingField:
 class MovingTo:
 	def __init__(self, robot):
 		self.robot = robot
+		rospy.wait_for_service('drive_to')
+		self.drive_to = rospy.ServiceProxy('drive_to', DriveTo)
 
 	def condition(self):
 		return len(self.robot.path) > 0
@@ -80,7 +83,10 @@ class MovingTo:
 		cell = self.robot.path.pop()
 		point = cell.pose.position
 		rospy.loginfo("Driving to coordinate ({},{})".format(point.x, point.y))
-		# send message to drive service, validate movement
+		try:
+			self.drive_to(cell.pose)
+		except rospy.ServiceException as ex:
+			rospy.logerr("Request to Drive node failed. %s", str(ex))
 
 
 
