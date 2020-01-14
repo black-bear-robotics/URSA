@@ -43,6 +43,9 @@ class URSARobot:
 #########################
 
 class MappingField:
+	"""Initial state. Sweeps camera collects mapping data while waiting 
+	for the command to start driving."""
+
 	def __init__(self, robot):
 		self.robot = robot
 		self.done = False
@@ -67,6 +70,9 @@ class MappingField:
 
 
 class MovingTo:
+	"""Robot is driving to a destination. The next grid cell is popped off the
+	list, and the command to move is sent to the Drive node."""
+
 	def __init__(self, robot):
 		self.robot = robot
 		rospy.wait_for_service('drive_to')
@@ -91,6 +97,9 @@ class MovingTo:
 
 
 class Arriving:
+	"""When the robot reaches the end of its established path, determine whether
+	it is time to dig or dump the collected materials."""
+
 	def __init__(self, robot):
 		self.robot = robot
 

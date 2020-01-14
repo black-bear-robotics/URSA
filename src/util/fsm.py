@@ -1,6 +1,5 @@
-# Manages the current task the robot is performing
-
 class StateMachine:
+	"""Manages the current task the robot is performing"""
 	stack = []
 
 	def update(self):

@@ -22,27 +22,27 @@ class Drive:
 
 
 	def drive_to(self, data):
-		# Takes a Pose object (data.target) and drives the robot to it
-		# Returns a Pose estimating the new position by odometry.
+		"""Takes a Pose object (data.target) and drives the robot to it.
+		Returns a Pose estimating the new position by odometry."""
 		return DriveToResponse(data.target)
 
 
 	def move(self, data):
-		# Drive forward or background n meters (data.distance).
-		# Negative for reverse.
-		# Returns meters traveled, by motor odometry.
+		"""Drive forward or background n meters (data.distance).
+		Negative for reverse.
+		Returns meters traveled, by motor odometry."""
 		return
 
 
 	def turn(self, data):
-		# Turn n degrees (data.degrees). Negative to reverse direction.
+		"""Turn n degrees (data.degrees). Negative to reverse direction."""
 		return
 
 
 	def motor_speed(self, data):
-		# Directly set the speed of attached motors.
-		# data.names: array of motor names (string)
-		# data.speeds: array of motor speeds (float)
+		"""Directly set the speed of attached motors.
+		data.names: array of motor names (string)
+		data.speeds: array of motor speeds (float)"""
 		return
 
 

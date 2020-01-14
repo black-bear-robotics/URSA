@@ -38,8 +38,8 @@ class Pathfinder:
 
 
 	def find_path(self, loc, target):
-		# Takes the 2D map and plots a path from the current location to the target
-		# Since self.path is a list, we can pop nodes off of it as we travel to them
+		"""Takes the 2D map and plots a path from the current location to the target.
+		Since self.path is a list, we can pop nodes off of it as we travel to them"""
 		grid = Grid(matrix=self.navmatrix)
 		start = grid.node(loc[0], loc[1])
 		end = grid.node(target[0], target[1])
@@ -53,14 +53,14 @@ class Pathfinder:
 
 
 	def unpack_navmatrix(self, data):
-		# Turn OccupancyGrid into list of python lists
+		"""Turn OccupancyGrid into list of python lists"""
 		meta = data.info
 		self.navmatrix = [map(gridutil.pfval, data.data[i:i+meta.width]) for i in range(0, len(data.data), meta.width)]
 		rospy.loginfo("MAP: w: {}, h: {}, res: {}".format(meta.width, meta.height, meta.resolution))
 		
 
 	def publish_path(self, path):
-		# Format the list into an ROS Path message and publish
+		"""Format the list into an ROS Path message and publish"""
 		res = self.occupancy_grid.info.resolution
 		self.ros_path = Path()
 		self.ros_path.header.frame_id = "map"
@@ -80,14 +80,14 @@ class Pathfinder:
 
 
 	def listen_grid(self, data):
-		# Listen to octomap_server for an OccupancyGrid
+		"""Listen to octomap_server for an OccupancyGrid"""
 		self.occupancy_grid = data
 		self.unpack_navmatrix(data)
 
 
 	def listen_position(self, data):
-		# Listen to orb_slam2 for the current camera position
-		# Don't process position until grid has been received
+		"""Listen to orb_slam2 for the current camera position.
+		Don't process position until grid has been received"""
 		if self.occupancy_grid is None:
 			return
 		self.cam_pose = data
@@ -97,7 +97,7 @@ class Pathfinder:
 
 
 	def listen_clicked(self, data):
-		# If a point is clicked in rviz, use it as a pathfinding target
+		"""If a point is clicked in rviz, use it as a pathfinding target."""
 		clicked = gridutil.point_to_grid(data.point, self.occupancy_grid)
 		self.target = clicked
 		rospy.loginfo("CLICKED: x: {}, y: {}".format(clicked[0], clicked[1]))
@@ -105,8 +105,8 @@ class Pathfinder:
 
 
 	def set_target_service(self, data):
-		# Another node can set the pathfinding target by sending a
-		# Point(x,y,z) to the /pathfinder_target service.
+		"""Another node can set the pathfinding target by sending a
+		Point(x,y,z) to the /pathfinder_target service."""
 		if self.occupancy_grid is None:
 			return
 		self.target = gridutil.point_to_grid(data.point, self.occupancy_grid)
@@ -115,9 +115,9 @@ class Pathfinder:
 
 
 	def find_path_service(self, data):
-		# Triggering the /find_path service will cause the node
-		# to find a path to the established target, and publish
-		# it to the /path topic.
+		"""Triggering the /find_path service will cause the node
+		to find a path to the established target, and publish
+		it to the /path topic."""
 		if self.occupancy_grid is None or not self.target:
 			return TriggerResponse(success=False)
 		else:
