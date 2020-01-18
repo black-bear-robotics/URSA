@@ -3,7 +3,7 @@
 # This will listen for new data from ORB_SLAM2 et al and
 # rebroadcast messages containing the shortest path.
 
-import rospy
+import rospy, random
 from std_msgs.msg import String
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
 from geometry_msgs.msg import PoseStamped, PointStamped
@@ -136,10 +136,20 @@ class Pathfinder:
 			return TargetTypeResponse(success=False)
 
 		if data.type.lower() == 'home':
-			# get base location from QR code tracker and set as target
+			# Get base location from QR code tracker and set as target
+			self.target = (0,0)
 		else:
-			# choose arbitrary mining target
-		
+			# Choose arbitrary mining target
+			# Random for current testing, but in practice we should do something
+			# like check the base location (via QR code tracker) and drive to a
+			# point on the opposite half of the field.
+			x = None
+			y = None
+			while not x or not y or self.navmatrix[y][x] < 1:
+				x = random.randint(1, len(self.navmatrix[0])-1)
+				y = random.randint(1, len(self.navmatrix)-1)
+			self.target = (x,y)
+
 		self.find_path(self.loc, self.target)
 		return TargetTypeResponse(success=(len(self.ros_path) > 0))
 		
