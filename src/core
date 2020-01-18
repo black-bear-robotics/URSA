@@ -49,7 +49,13 @@ class MappingField:
 	def __init__(self, robot):
 		self.robot = robot
 		self.done = False
+
+		rospy.wait_for_service('find_target')
+		self.find_target = rospy.ServiceProxy('find_target', TargetType)
+
 		rospy.loginfo("Mapping field.")
+		if rospy.get_param("hold"):
+			rospy.loginfo("To release position hold: rosparam set /hold false")
 
 	def condition(self):
 		return not self.done
@@ -58,13 +64,16 @@ class MappingField:
 		self.robot.state.push(MovingTo(self.robot))
 
 	def do(self):
-		#sweep the camera while we build the initial map
-		#then set self.done to True to start driving
-		#If self.robot.path is not None, we're probably ready.
-		#Alternately, we could wait for a manual start command.
-		#This is also where we tell the pathfinder module whether
-		#to plot a course to the base or a dig site.
-		if self.robot.path: #for testing
+		# Sweep the camera
+		
+		# Try to pick a target and find a path to it
+		try:
+			what = 'home' if rospy.get_param("collector_full") else 'mining'
+			self.find_target(what)
+		except rospy.ServiceException as ex:
+			rospy.logerr("Request to Pathfinder failed. %s", str(ex))
+		
+		if self.robot.path is not None and rospy.get_param("hold") is False:
 			self.done = True
 
 
@@ -85,7 +94,7 @@ class MovingTo:
 		self.robot.state.push(Arriving(self.robot))
 
 	def do(self):
-		# drive robot, sending command to drive control node
+		# Drive robot, sending command to drive control node
 		cell = self.robot.path.pop()
 		point = cell.pose.position
 		rospy.loginfo("Driving to coordinate ({},{})".format(point.x, point.y))

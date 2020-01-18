@@ -12,6 +12,7 @@ from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
 from std_srvs.srv import Trigger, TriggerResponse
 from ursa.srv import PathfinderTarget, PathfinderTargetResponse
+from ursa.srv import TargetType, TargetTypeResponse
 from util import gridutil
 
 
@@ -27,8 +28,9 @@ class Pathfinder:
 		self.ros_path = Path()
 
 		self.pub = rospy.Publisher('path', Path, latch=True, queue_size=10)
-		self.srv_target = rospy.Service('pathfinder_target', PathfinderTarget, self.set_target_service)
-		self.srv_path = rospy.Service('find_path', Trigger, self.find_path_service)
+		rospy.Service('pathfinder_target', PathfinderTarget, self.set_target_service)
+		rospy.Service('find_path', Trigger, self.find_path_service)
+		rospy.Service('find_target', TargetType, self.find_target_service)
 
 		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
 		rospy.Subscriber('orb_slam2_mynteye_s_stereo/pose', PoseStamped, self.listen_position)
@@ -123,6 +125,23 @@ class Pathfinder:
 		else:
 			self.find_path(self.loc, self.target)
 			return TriggerResponse(success=True)
+
+
+	def find_target_service(self, data):
+		"""When the Core node is ready, it will specify a type of target for
+		the Pathfinder to seek out and set as the pathfinding target.
+		A value of 'home' will seek the dumping area and a value of 'mining'
+		will cause an arbitrary free space on the navmatrix to be chosen."""
+		if self.occupancy_grid is None:
+			return TargetTypeResponse(success=False)
+
+		if data.type.lower() == 'home':
+			# get base location from QR code tracker and set as target
+		else:
+			# choose arbitrary mining target
+		
+		self.find_path(self.loc, self.target)
+		return TargetTypeResponse(success=(len(self.ros_path) > 0))
 		
 
 
