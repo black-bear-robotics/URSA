@@ -8,19 +8,20 @@ import rospy
 from std_msgs.msg import String
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
 from util import fsm
-from ursa.srv import DriveTo
+from ursa.srv import DriveTo, TargetType
 
 class URSARobot:
 
 	def __init__(self):
-		# Set up the finite state machine
 		rospy.loginfo("Robot online.")
-		self.state = fsm.StateMachine()
-		self.state.push(MappingField(self))
 
 		#Publicly exposed robot properties
 		rospy.set_param('collector_full', False) #do we have materials to dump?
 		rospy.set_param('hold', True) #don't drive until human says so
+
+		# Set up the finite state machine
+		self.state = fsm.StateMachine()
+		self.state.push(MappingField(self))
 
 		# Subsctibe to topics and collect data
 		self.path = None
@@ -84,6 +85,7 @@ class MovingTo:
 
 	def __init__(self, robot):
 		self.robot = robot
+		rospy.loginfo("Starting drive.")
 		rospy.wait_for_service('drive_to')
 		self.drive_to = rospy.ServiceProxy('drive_to', DriveTo)
 

@@ -132,7 +132,7 @@ class Pathfinder:
 		the Pathfinder to seek out and set as the pathfinding target.
 		A value of 'home' will seek the dumping area and a value of 'mining'
 		will cause an arbitrary free space on the navmatrix to be chosen."""
-		if self.occupancy_grid is None:
+		if self.occupancy_grid is None or not self.loc:
 			return TargetTypeResponse(success=False)
 
 		if data.type.lower() == 'home':
@@ -146,12 +146,12 @@ class Pathfinder:
 			x = None
 			y = None
 			while not x or not y or self.navmatrix[y][x] < 1:
-				x = random.randint(1, len(self.navmatrix[0])-1)
-				y = random.randint(1, len(self.navmatrix)-1)
+				x = random.randint(0, len(self.navmatrix[0])-1)
+				y = random.randint(0, len(self.navmatrix)-1)
 			self.target = (x,y)
 
 		self.find_path(self.loc, self.target)
-		return TargetTypeResponse(success=(len(self.ros_path) > 0))
+		return TargetTypeResponse(success=(len(self.ros_path.poses) > 0))
 		
 
 

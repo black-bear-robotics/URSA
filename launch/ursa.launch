@@ -2,6 +2,6 @@
 <launch>
 	<!-- Nodes to launch in URSA package -->
 	<node name="pathfinder" type="pathfinder" pkg="ursa" respawn="true" output="screen" />
-    <node name="drive" type="core" pkg="ursa" respawn="true" output="screen" />
+    <node name="drive" type="drive" pkg="ursa" respawn="true" output="screen" />
 	<node name="core" type="core" pkg="ursa" respawn="true" output="screen" />
 </launch>

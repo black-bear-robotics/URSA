@@ -24,6 +24,7 @@ add_service_files(
     Move.srv
     Turn.srv
     MotorSpeed.srv
+    TargetType.srv
 )
 
 
