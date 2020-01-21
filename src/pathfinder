@@ -33,7 +33,7 @@ class Pathfinder:
 		rospy.Service('find_target', TargetType, self.find_target_service)
 
 		rospy.Subscriber('projected_map', OccupancyGrid, self.listen_grid)
-		rospy.Subscriber('orb_slam2_mynteye_s_stereo/pose', PoseStamped, self.listen_position)
+		rospy.Subscriber('orb_slam2_stereo/pose', PoseStamped, self.listen_position)
 		rospy.Subscriber('clicked_point', PointStamped, self.listen_clicked)
 
 		rospy.spin()
@@ -58,19 +58,19 @@ class Pathfinder:
 		"""Turn OccupancyGrid into list of python lists"""
 		meta = data.info
 		self.navmatrix = [map(gridutil.pfval, data.data[i:i+meta.width]) for i in range(0, len(data.data), meta.width)]
-		rospy.loginfo("MAP: w: {}, h: {}, res: {}".format(meta.width, meta.height, meta.resolution))
 		
 
 	def publish_path(self, path):
 		"""Format the list into an ROS Path message and publish"""
 		res = self.occupancy_grid.info.resolution
+		origin = self.occupancy_grid.info.origin.position
 		self.ros_path = Path()
 		self.ros_path.header.frame_id = "map"
 		
 		for node in path:
 			pose = PoseStamped()
-			pose.pose.position.x = (node[0] * res) + (res/2)
-			pose.pose.position.y = (node[1] * res) + (res/2)
+			pose.pose.position.x = (node[0] * res) + origin.x + (res/2)
+			pose.pose.position.y = (node[1] * res) + origin.y + (res/2)
 			pose.pose.position.z = 0
 			pose.pose.orientation.x = float(0)
 			pose.pose.orientation.y = float(0)
@@ -95,7 +95,6 @@ class Pathfinder:
 		self.cam_pose = data
 		point = data.pose.position
 		self.loc = gridutil.point_to_grid(point, self.occupancy_grid)
-		rospy.loginfo("POS: x: {}, y: {}".format(self.loc[0], self.loc[1]))
 
 
 	def listen_clicked(self, data):
