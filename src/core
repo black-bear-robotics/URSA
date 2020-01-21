@@ -113,6 +113,7 @@ class Arriving:
 
 	def __init__(self, robot):
 		self.robot = robot
+		self.robot.path = None
 
 	def condition(self):
 		return True
