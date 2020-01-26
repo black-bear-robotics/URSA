@@ -3,7 +3,7 @@
 # This will listen for new data from ORB_SLAM2 et al and
 # rebroadcast messages containing the shortest path.
 
-import rospy, random
+import rospy, random, math, tf
 from std_msgs.msg import String
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
 from geometry_msgs.msg import PoseStamped, PointStamped
@@ -67,15 +67,16 @@ class Pathfinder:
 		self.ros_path = Path()
 		self.ros_path.header.frame_id = "map"
 		
-		for node in path:
+		for i in range(0, len(path)-1):
+			node = path[i]
 			pose = PoseStamped()
 			pose.pose.position.x = (node[0] * res) + origin.x + (res/2)
 			pose.pose.position.y = (node[1] * res) + origin.y + (res/2)
 			pose.pose.position.z = 0
-			pose.pose.orientation.x = float(0)
-			pose.pose.orientation.y = float(0)
-			pose.pose.orientation.z = float(0)
-			pose.pose.orientation.w = float(0)
+			if i < len(path)-1:
+				pose.pose.orientation = gridutil.path_angle(node, path[i+1])
+			else:
+				pose.pose.orientation = 0
 			self.ros_path.poses.append(pose)
 			
 		self.pub.publish(self.ros_path)
