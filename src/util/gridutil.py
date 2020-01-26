@@ -1,4 +1,4 @@
-import math, tf
+import rospy, math, tf
 from geometry_msgs.msg import Quaternion
 
 def point_to_grid(point, grid):

@@ -48,7 +48,7 @@ class Pathfinder:
 		finder = AStarFinder(diagonal_movement=DiagonalMovement.only_when_no_obstacle)
 		path, runs = finder.find_path(start, end, grid)
 		path.reverse() #Put nodes into driving order
-		if len(path) > 0: path.pop() #Remove the starting node we're in
+		#if len(path) > 0: path.pop() #Remove the starting node we're in
 		self.path = path
 		rospy.loginfo(grid.grid_str(path=self.path, start=start, end=end))
 		self.publish_path(path)
@@ -76,7 +76,7 @@ class Pathfinder:
 			if i < len(path)-1:
 				pose.pose.orientation = gridutil.path_angle(node, path[i+1])
 			else:
-				pose.pose.orientation = 0
+				pose.pose.orientation = self.ros_path.poses[i-1].pose.orientation
 			self.ros_path.poses.append(pose)
 			
 		self.pub.publish(self.ros_path)

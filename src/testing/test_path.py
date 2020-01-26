@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # Broadcast dummy data for the pathfinding node to catch.
 
-import rospy
+import rospy, math, tf
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
-from geometry_msgs.msg import Pose, PoseStamped, Point
+from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from ursa.srv import PathfinderTarget
 
 
@@ -15,13 +15,10 @@ def send_grid(pub):
 	meta.resolution = 1
 	
 	origin = Pose()
-	origin.position.x = 0
+	origin.position.x = -3
 	origin.position.z = 0
-	origin.position.y = 0
-	origin.orientation.x = float(0)
-	origin.orientation.y = float(0)
-	origin.orientation.z = float(0)
-	origin.orientation.w = float(0)
+	origin.position.y = -3
+	origin.orientation = Quaternion(*tf.transformations.quaternion_from_euler(0, 0, 0))
 	meta.origin = origin
 
 	grid = OccupancyGrid()
@@ -37,10 +34,7 @@ def send_robot_pos(pub):
 	pose.pose.position.x = 0.33
 	pose.pose.position.y = 0.22
 	pose.pose.position.z = 0.0
-	pose.pose.orientation.x = 0
-	pose.pose.orientation.y = 0
-	pose.pose.orientation.z = 0
-	pose.pose.orientation.w = 0
+	pose.pose.orientation = Quaternion(*tf.transformations.quaternion_from_euler(0, 0, 0))
 	pub.publish(pose)
 
 
