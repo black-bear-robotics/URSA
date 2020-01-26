@@ -1,4 +1,5 @@
 import rospy, math, tf
+from tf_conversions import transformations
 from geometry_msgs.msg import Quaternion
 
 def point_to_grid(point, grid):
@@ -33,4 +34,4 @@ def path_angle(node1, node2):
 	dx = node2[0] - node1[0]
 	dy = node2[1] - node1[1]
 	angle = math.degrees(math.atan2(dy, dx))
-	return Quaternion(*tf.transformations.quaternion_from_euler(0, 0, angle))
+	return Quaternion(*transformations.quaternion_from_euler(0, 0, angle))

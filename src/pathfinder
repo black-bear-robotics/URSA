@@ -3,7 +3,7 @@
 # This will listen for new data from ORB_SLAM2 et al and
 # rebroadcast messages containing the shortest path.
 
-import rospy, random, math, tf
+import rospy, random, math
 from std_msgs.msg import String
 from nav_msgs.msg import OccupancyGrid, Path, MapMetaData
 from geometry_msgs.msg import PoseStamped, PointStamped
