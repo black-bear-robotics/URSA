@@ -1,0 +1,5 @@
+<launch>
+	<include file="/home/nvidia/Documents/MYNT-EYE-S-SDK/wrappers/ros/src/mynt_eye_ros_wrapper/launch/mynteye.launch" />
+	<include file="/home/nvidia/catkin_ws/src/orb_slam_2_ros/ros/launch/orb_slam2_mynteye_s_stereo.launch" />
+	<include file="/opt/ros/kinetic/share/octomap_server/launch/octomap_bbr.launch" />
+</launch>
