@@ -4,10 +4,30 @@
 
 import rospy
 from std_msgs.msg import String
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Joy
+
+class Manual:
+
+	def __init__(self):
+		self.twistCoeff = rospy.get_param("twist_coeff", 4)
+		self.pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+		rospy.Subscriber("joy", Joy, self.handle_input)
+		rospy.spin()
+
+
+	def handle_input(self, data):
+		#Let's do The Twist...
+		twist = Twist()
+		twist.linear.x = 4*data.axes[1]
+		twist.angular.z = 4*data.axes[0]
+		self.pub.publish(twist)
+
 
 if __name__ == '__main__':
-    try:
-        # register node and initialize main function
-    except rospy.ROSInterruptException:
-        pass
-    
+	try:
+		rospy.init_node('manual')
+		Manual()
+	except rospy.ROSInterruptException:
+		pass
+	

@@ -4,12 +4,17 @@
 # as calculating movement from cell to cell on the nav grid.
 
 import rospy
+from geometry_msgs.msg import Twist
 from std_srvs.srv import Trigger
 from ursa.srv import DriveTo, DriveToResponse, Move, MoveResponse, Turn, MotorSpeed
 
 class Drive:
 
 	def __init__(self):
+		self.wheelDist = rospy.get_param('/wheel_dist', 0.48)
+		self.wheelRadius = rospy.get_param('/wheel_radius', 0.10)
+
+		rospy.Subscriber('cmd_vel', Twist, self.cmd_vel)
 		rospy.Service('drive_to', DriveTo, self.drive_to)
 		rospy.Service('move', Move, self.move)
 		rospy.Service('turn', Turn, self.turn)
@@ -19,6 +24,17 @@ class Drive:
 		rospy.Service('dump_collector', Trigger, self.dump_collector)
 
 		rospy.spin()
+	
+
+	def cmd_vel(self, data):
+		"""Take a Twist message and drive the motors."""
+		linearVel = data.linear.x
+		angularVel = data.angular.z
+		velDiff = (self.wheelDist * angularVel) / 2
+		leftPower = (linearVel + velDiff) / self.wheelRadius
+		RightPower = (linearVel - velDiff) / self.wheelRadius
+		#Call function that does Maestro stuff
+		rospy.loginfo("Left: %f Right: %f", leftPower, RightPower)
 
 
 	def drive_to(self, data):
@@ -36,13 +52,6 @@ class Drive:
 
 	def turn(self, data):
 		"""Turn n degrees (data.degrees). Negative to reverse direction."""
-		return
-
-
-	def motor_speed(self, data):
-		"""Directly set the speed of attached motors.
-		data.names: array of motor names (string)
-		data.speeds: array of motor speeds (float)"""
 		return
 
 

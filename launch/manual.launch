@@ -1,0 +1,9 @@
+<launch>
+    <node respawn="true" pkg="joy" type="joy_node" name="controller" >
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <param name="deadzone" value="0.12" />
+    </node>
+
+    <node name="manual" type="manual" pkg="ursa" respawn="true" output="screen" />
+    <node name="drive" type="drive" pkg="ursa" respawn="true" output="screen" />
+</launch>
