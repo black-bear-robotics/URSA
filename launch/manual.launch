@@ -1,4 +1,6 @@
 <launch>
+    <include file="$(find ursa)/params.xml" />
+
     <node respawn="true" pkg="joy" type="joy_node" name="controller" >
         <param name="dev" type="string" value="/dev/input/js0" />
         <param name="deadzone" value="0.12" />

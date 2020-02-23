@@ -18,7 +18,6 @@ class Drive:
 		rospy.Service('drive_to', DriveTo, self.drive_to)
 		rospy.Service('move', Move, self.move)
 		rospy.Service('turn', Turn, self.turn)
-		rospy.Service('motor_speed', MotorSpeed, self.motor_speed)		
 		rospy.Service('start_digging', Trigger, self.start_digging)
 		rospy.Service('stop_digging', Trigger, self.stop_digging)
 		rospy.Service('dump_collector', Trigger, self.dump_collector)

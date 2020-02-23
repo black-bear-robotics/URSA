@@ -1,0 +1,8 @@
+<launch>
+    <!-- Physical properties of the robot -->
+    <param name="wheel_dist" value="0.48" />
+    <param name="wheel_radius" value="0.10" />
+
+    <!-- Value multiplied by the joystick axis (-1 to 1) for manual -->
+    <param name="twist_coeff" value="4" />
+</launch>

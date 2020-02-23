@@ -19,8 +19,8 @@ class Manual:
 	def handle_input(self, data):
 		#Let's do The Twist...
 		twist = Twist()
-		twist.linear.x = 4*data.axes[1]
-		twist.angular.z = 4*data.axes[0]
+		twist.linear.x = self.twistCoeff*data.axes[1]
+		twist.angular.z = self.twistCoeff*data.axes[0]
 		self.pub.publish(twist)
 
 
