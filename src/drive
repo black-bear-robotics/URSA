@@ -7,6 +7,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Trigger
 from ursa.srv import DriveTo, DriveToResponse, Move, MoveResponse, Turn, MotorSpeed
+from util import maestro
 
 class Drive:
 
@@ -14,6 +15,10 @@ class Drive:
 		self.wheelDist = rospy.get_param('/wheel_dist', 0.48)
 		self.wheelRadius = rospy.get_param('/wheel_radius', 0.10)
 		self.maxSpeed = rospy.get_param('/max_speed', 1)
+		self.motors = rospy.get_param('/motors')
+
+		self.controller = None
+		self.maestro_init()
 
 		rospy.Subscriber('cmd_vel', Twist, self.cmd_vel)
 		rospy.Service('drive_to', DriveTo, self.drive_to)
@@ -30,12 +35,15 @@ class Drive:
 		"""Take a Twist message and drive the motors."""
 		linearVel = data.linear.x / self.maxSpeed
 		angularVel = data.angular.z / self.maxSpeed
-		motorL, motorR = self.arcadeMix(linearVel, angularVel)
-		#Call function that does Maestro stuff
+		motorL, motorR = self.motor_mix(linearVel, angularVel)
+		motorL = self.maestro_scale(self.motors['LEFT'], motorL)
+		motorR = self.maestro_scale(self.motors['RIGHT'], motorR)
+		self.set_motor(self.motors['LEFT'], motorL)
+		self.set_motor(self.motors['RIGHT'], motorR)
 		rospy.loginfo("Left: %f Right: %f", motorL, motorR)
 	
 
-	def arcadeMix(self, linearVel, angularVel):
+	def motor_mix(self, linearVel, angularVel):
 		"""Takes a velocity percentage (-1.0 to 1.0) for
 		linear and angular, mixing them into a motor
 		power ratio."""
@@ -46,6 +54,34 @@ class Drive:
 		motorR = (v + w) / 2
 		motorL = -(v - w) / 2
 		return (motorL, motorR)
+
+
+	def maestro_scale(self, motor, value):
+		"""Convert -1.0 to 1.0 into Maestro target values."""
+		if value >= 0:
+			r = int(motor['center'] + (motor['max'] - motor['center']) * value)
+		else:
+			r = int(motor['center'] + (motor['center'] - motor['min']) * value)
+		return r
+
+
+	def set_motor(self, motor, value):
+		"""Set the Maestro target for a motor"""
+		if self.controller is not None:
+			self.controller.setTarget(motor['channel'], value)
+
+
+	def maestro_init(self):
+		"""Initialize the Maestro controller and set some
+		starting values on the motor channels."""
+		try:
+			c = maestro.Controller()
+			self.controller = c
+			for motor in self.motors:
+				c.setAccel(motor['channel'], motor['accel'])
+				c.setSpeed(motor['channel'], motor['speed'])
+		except:
+			rospy.logerr("Could not connect to Maestro.")
 
 
 	def drive_to(self, data):

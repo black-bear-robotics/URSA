@@ -3,6 +3,12 @@
     <param name="wheel_dist" value="0.48" />
     <param name="wheel_radius" value="0.10" />
 
-    <!-- Value multiplied by the joystick axis (-1 to 1) for manual -->
-    <param name="twist_coeff" value="4" />
+    <!-- Value multiplied by the joystick axis (-1 to 1) for manual. Used for calculations in autonomous mode. -->
+    <param name="max_speed" value="2" />
+
+    <!-- Motor settings -->
+    <rosparam param="motors">
+        LEFT: {channel: 0, speed: 0, accel: 0, min: 2760, center: 6000, max: 9300}
+        RIGHT: {channel: 1, speed: 0, accel: 0, min: 2760, center: 6000, max: 9300}
+    </rosparam>
 </launch>
