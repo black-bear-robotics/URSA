@@ -28,7 +28,16 @@ class Drive:
 		rospy.Service('stop_digging', Trigger, self.stop_digging)
 		rospy.Service('dump_collector', Trigger, self.dump_collector)
 
+		rospy.on_shutdown(self.on_exit)
 		rospy.spin()
+
+
+	def on_exit(self):
+		"""Shut motors off and close controller."""
+		if self.controller is not None:
+			for motor in self.motors:
+				self.set_motor(motor, motor['center'])
+			self.controller.close()
 	
 
 	def cmd_vel(self, data):
