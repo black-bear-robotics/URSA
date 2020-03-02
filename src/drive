@@ -3,7 +3,7 @@
 # Receives commands from other nodes and operates motors, as well
 # as calculating movement from cell to cell on the nav grid.
 
-import rospy
+import rospy, sys
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Trigger
 from ursa.srv import DriveTo, DriveToResponse, Move, MoveResponse, Turn, MotorSpeed
@@ -86,7 +86,7 @@ class Drive:
 		try:
 			c = maestro.Controller()
 			self.controller = c
-			for motor in self.motors:
+			for name, motor in self.motors.items():
 				c.setAccel(motor['channel'], motor['accel'])
 				c.setSpeed(motor['channel'], motor['speed'])
 		except:
