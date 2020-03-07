@@ -57,6 +57,8 @@ class MappingField:
 		rospy.loginfo("Mapping field.")
 		if rospy.get_param("hold"):
 			rospy.loginfo("To release position hold: rosparam set /hold false")
+		if rospy.get_param("noautotarget", False):
+			rospy.loginfo("Automatic target selection disabled. Click a point in rviz to continue.")
 
 	def condition(self):
 		return not self.done
@@ -68,11 +70,12 @@ class MappingField:
 		# Sweep the camera
 		
 		# Try to pick a target and find a path to it
-		try:
-			what = 'home' if rospy.get_param("collector_full") else 'mining'
-			self.find_target(what)
-		except rospy.ServiceException as ex:
-			rospy.logerr("Request to Pathfinder failed. %s", str(ex))
+		if not rospy.get_param("noautotarget", False):
+			try:
+				what = 'home' if rospy.get_param("collector_full") else 'mining'
+				self.find_target(what)
+			except rospy.ServiceException as ex:
+				rospy.logerr("Request to Pathfinder failed. %s", str(ex))
 		
 		if self.robot.path is not None and rospy.get_param("hold") is False:
 			self.done = True
