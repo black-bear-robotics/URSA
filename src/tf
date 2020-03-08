@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import rospy, tf
+
+class TF:
+
+	def __init__(self):
+		self.listener = tf.TransformListener()
+		self.broadcaster = tf.TransformBroadcaster()
+
+		rate = rospy.Rate(10)
+		while not rospy.is_shutdown():
+			self.base_link()
+			rate.sleep()
+
+
+	def base_link(self):
+		try:
+			(trans, rot) = self.listener.lookupTransform("map", "camera_link", rospy.Time())
+			self.broadcaster.sendTransform(trans, rot, rospy.Time.now(), "base_link", "map")
+			self.broadcaster.sendTransform(trans, rot, rospy.Time.now(), "odom", "map")
+			self.broadcaster.sendTransform((0,0,0), (0,0,0,1), rospy.Time.now(), "base_link", "odom")
+		except:
+			return
+
+
+if __name__ == '__main__':
+	try:
+		rospy.init_node('tf')
+		TF()
+	except rospy.ROSInterruptException:
+		pass

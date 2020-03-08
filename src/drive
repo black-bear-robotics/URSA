@@ -60,7 +60,7 @@ class Drive:
 		l = angularVel
 		v = (1 - abs(r)) * l + l
 		w = (1 - abs(l)) * r + r
-		motorR = (v + w) / 2
+		motorR = -(v + w) / 2
 		motorL = -(v - w) / 2
 		return (motorL, motorR)
 
