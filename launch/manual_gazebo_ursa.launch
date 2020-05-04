@@ -1,0 +1,8 @@
+<launch>
+    <include file="$(find ursa)/params.xml" />
+
+    <node respawn="true" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" />
+
+    <include file="$(find ursa)/launch/gazebo_ursa.launch" />
+</launch>
+
